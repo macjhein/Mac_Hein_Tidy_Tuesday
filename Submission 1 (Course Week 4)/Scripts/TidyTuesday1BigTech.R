@@ -34,3 +34,4 @@ big_tech_stock_prices %>%
   labs(title = "Number (volume) of traded Apple and Microsoft shares per day",
        x = "Date", y = "Volume", color = "Company")
 
+ggsave(here("Mac_Hein_Tidy_Tuesday/Submission 1 (Course Week 4)","Output","Apple_vs_Microsoft_Volume.png"))
