@@ -9,6 +9,7 @@ library(here)
 library(devtools)
 library(ggdist)
 library(tidytuesdayR)
+library(BobRossColors)
 
 # Load Data ----
 
