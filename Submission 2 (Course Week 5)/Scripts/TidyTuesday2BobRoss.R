@@ -9,6 +9,9 @@ library(here)
 library(devtools)
 library(ggdist)
 library(tidytuesdayR)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
 library(BobRossColors)
 
 # Load Data ----
