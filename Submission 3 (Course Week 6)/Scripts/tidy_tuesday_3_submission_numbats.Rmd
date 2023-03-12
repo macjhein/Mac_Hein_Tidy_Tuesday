@@ -1,0 +1,85 @@
+---
+title: "tidy_tuesday_3_submission_numbats"
+author: "Mac"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../Output/")
+```
+
+# Load Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidytuesdayR)
+library(lubridate)
+library(kableExtra)
+library(maps)
+library(mapdata)
+library(mapproj)
+library(ozmaps)
+library(oz)
+```
+
+# Load Data
+
+```{r}
+#tuesdata <- tidytuesdayR::tt_load('2023-03-07')
+#tuesdata <- tidytuesdayR::tt_load(2023, week = 10)
+
+#numbats <- tuesdata$numbats
+
+numbats <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-07/numbats.csv')
+```
+
+# Data Analysis
+
+Questions that would be interesting to answer are:
+
+Where do you find numbats in Australia?
+Was the distribution more widespread historically? (You may need to exclude zoo reported observations.)
+What time of day do numbat sightings occur?
+Are they more frequent in the summer or winter?
+Are numbats seen more on sunny and warm days than cloudy, wet, cold days?
+Do sightings happen more on week days than weekends?
+
+```{r}
+head(numbats) %>%
+  kbl() %>% # Make it a kable table
+  kable_classic() %>%
+  kable_styling(full_width = FALSE) # Disabling full width option
+```
+
+```{r Map of numbat sightings by subspecies}
+
+world <- map_data("world")
+#australia <- ozmap()
+
+ggplot()+
+  geom_polygon(data = world, 
+               aes(x = long, 
+                   y = lat, 
+                   group = group#,
+                   #fill = region
+                   ),
+               color = "black", fill = "yellowgreen"
+               ) +
+  geom_point(data = numbats,
+             aes(x = decimalLongitude,
+                 y = decimalLatitude,
+                 group = scientificName,
+                 color = scientificName),
+             alpha = 0.5
+             ) +
+  coord_map(projection = "mercator",
+            xlim = c(115, 180),
+            ylim = c(-10, -40)
+            ) + # can set limits of longitude (xlim) and latitude (ylim?) to zoom in
+  labs(title = "Locations of numbat sightings in Australia", x = "Longitude", y = "Latitude", 
+       color = "Subspecies") +
+  scale_colour_manual(values = c("lightseagreen", "violetred1"), aesthetics = c("color", "fill"))
+```
+
