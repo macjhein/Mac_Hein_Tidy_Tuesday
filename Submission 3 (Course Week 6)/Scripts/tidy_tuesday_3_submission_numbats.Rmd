@@ -53,6 +53,8 @@ head(numbats) %>%
   kable_styling(full_width = FALSE) # Disabling full width option
 ```
 
+# Version of map made using mapdata
+
 ```{r Map of numbat sightings by subspecies}
 
 world <- map_data("world")
@@ -80,6 +82,24 @@ ggplot()+
             ) + # can set limits of longitude (xlim) and latitude (ylim?) to zoom in
   labs(title = "Locations of numbat sightings in Australia", x = "Longitude", y = "Latitude", 
        color = "Subspecies") +
-  scale_colour_manual(values = c("lightseagreen", "violetred1"), aesthetics = c("color", "fill"))
+  scale_colour_manual(values = c("lightseagreen", "violetred1"), aesthetics = c("color", "fill")) +
+  theme(panel.background = element_rect(fill = "lightblue"))
 ```
 
+# Version of map made using ozmaps
+
+```{r Second map of numbat sightings by subspecies}
+ggplot(ozmap_data("states")) +
+  geom_sf(fill = "yellowgreen") +
+  geom_point(data = numbats,
+             aes(x = decimalLongitude,
+                 y = decimalLatitude,
+                 group = scientificName,
+                 color = scientificName),
+             alpha = 0.5
+             ) +
+  labs(title = "Locations of numbat sightings in Australia", x = "Longitude", y = "Latitude", 
+       color = "Subspecies") +
+  scale_colour_manual(values = c("lightseagreen", "violetred1"), aesthetics = c("color", "fill")) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+```
