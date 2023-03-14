@@ -58,31 +58,30 @@ head(numbats) %>%
 ```{r Map of numbat sightings by subspecies}
 
 world <- map_data("world")
-#australia <- ozmap()
 
 ggplot()+
   geom_polygon(data = world, 
                aes(x = long, 
                    y = lat, 
-                   group = group#,
-                   #fill = region
-                   ),
-               color = "black", fill = "yellowgreen"
-               ) +
+                   group = group),
+               color = "black", fill = "yellowgreen") +
   geom_point(data = numbats,
              aes(x = decimalLongitude,
                  y = decimalLatitude,
                  group = scientificName,
                  color = scientificName),
-             alpha = 0.5
-             ) +
+             alpha = 0.5) +
   coord_map(projection = "mercator",
             xlim = c(115, 180),
-            ylim = c(-10, -40)
-            ) + # can set limits of longitude (xlim) and latitude (ylim?) to zoom in
-  labs(title = "Locations of numbat sightings in Australia", x = "Longitude", y = "Latitude", 
+            ylim = c(-10, -40)) + # can set limits of longitude (xlim) and latitude (ylim?) to zoom in
+  labs(title = "Locations of numbat sightings in Australia",
+       x = "Longitude",
+       y = "Latitude", 
        color = "Subspecies") +
-  scale_colour_manual(values = c("lightseagreen", "violetred1"), aesthetics = c("color", "fill")) +
+  scale_colour_manual(values = c("lightseagreen",
+                                 "violetred1"),
+                      aesthetics = c("color",
+                                     "fill")) +
   theme(panel.background = element_rect(fill = "lightblue"))
 ```
 
@@ -96,10 +95,14 @@ ggplot(ozmap_data("states")) +
                  y = decimalLatitude,
                  group = scientificName,
                  color = scientificName),
-             alpha = 0.5
-             ) +
-  labs(title = "Locations of numbat sightings in Australia", x = "Longitude", y = "Latitude", 
+             alpha = 0.5) +
+  labs(title = "Locations of numbat sightings in Australia",
+       x = "Longitude",
+       y = "Latitude", 
        color = "Subspecies") +
-  scale_colour_manual(values = c("lightseagreen", "violetred1"), aesthetics = c("color", "fill")) +
+  scale_colour_manual(values = c("lightseagreen",
+                                 "violetred1"),
+                      aesthetics = c("color",
+                                     "fill")) +
   theme(panel.background = element_rect(fill = "lightblue"))
 ```
