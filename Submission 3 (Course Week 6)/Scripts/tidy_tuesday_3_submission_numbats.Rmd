@@ -89,7 +89,7 @@ ggplot()+
 
 ```{r Second map of numbat sightings by subspecies}
 ggplot(ozmap_data("states")) +
-  geom_sf(fill = "yellowgreen") +
+  geom_sf(fill = "palegreen4") +
   geom_point(data = numbats,
              aes(x = decimalLongitude,
                  y = decimalLatitude,
