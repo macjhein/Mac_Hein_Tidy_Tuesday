@@ -100,7 +100,7 @@ ggplot(ozmap_data("states")) +
        x = "Longitude",
        y = "Latitude", 
        color = "Subspecies") +
-  scale_colour_manual(values = c("lightseagreen",
+  scale_colour_manual(values = c("goldenrod1",
                                  "violetred1"),
                       aesthetics = c("color",
                                      "fill")) +
