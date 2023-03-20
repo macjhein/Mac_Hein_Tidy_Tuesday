@@ -1,0 +1,56 @@
+---
+title: "Tidy Tuesdays 4 European Drug Development"
+author: "Mac"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../Output/")
+```
+
+# Load Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidytuesdayR)
+library(lubridate)
+library(kableExtra)
+library(maps)
+library(mapdata)
+library(mapproj)
+```
+
+# Load Data
+
+```{r}
+drugs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-14/drugs.csv')
+```
+
+# Data Analysis
+
+Tidying the data
+
+```{r}
+drug_info_by_status <- drugs %>%
+  pivot_longer(cols = patient_safety | additional_monitoring:orphan_medicine,
+               names_to = "variable",
+               values_to = "bool") %>%
+  group_by(authorisation_status, variable, bool) %>%
+  summarize(count = n())
+```
+Making a tile plot of the conditions of each drug trial, faceted by authorization status
+
+```{r drug_trial_conditions}
+ggplot(data = drug_info_by_status, aes(x = bool, y = variable, fill = count)) +
+  geom_tile(aes(fill = count)) +
+  facet_wrap(~authorisation_status, scales = "free", ) +
+  labs(title = "European drug trial properties (1995-present)",
+       x = "True/False",
+       y = "Condition",
+       fill = "Number of drugs") +
+  geom_text(aes(label = count)) +
+  scale_fill_gradient(low = "white", high = "lightseagreen")
+```
+
