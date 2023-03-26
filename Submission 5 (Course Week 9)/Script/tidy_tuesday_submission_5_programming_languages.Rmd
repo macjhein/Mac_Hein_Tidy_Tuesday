@@ -17,17 +17,47 @@ library(here)
 library(tidytuesdayR)
 library(lubridate)
 library(kableExtra)
+library(ggVennDiagram)
 ```
 
 # Load Data
 
 ```{r}
 languages <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-21/languages.csv')
+View(languages)
 ```
 
 # Data Analysis
 
-```{r}
+### Extracting columns with data I want to plot
 
+```{r}
+language_features <- data.frame(languages$features_has_comments,
+                                languages$features_has_semantic_indentation,
+                                languages$features_has_line_comments)
+
+names(language_features) <- c("has_comments",
+                              "has_semantic_indentation",
+                              "has_line_comments")
+
+View(language_features)
+```
+
+### Making a Venn diagram of programming languages by features
+
+Used the package ggVennDiagram
+
+```{r Programming Language Features}
+ggVennDiagram(lapply(language_features, function(x) which(x == 1)),
+              category.names = c("Semantic\nIndentation","Comments","Line\nComments"),
+              label_percent_digit = 2,
+              set_size = 3.5,
+              label_size = 3) +
+  scale_fill_gradient(low="turquoise4",high = "turquoise1") +
+  scale_x_continuous(expand = expansion(mult = .3)) + # widening figure to avoid cutting off set labels
+  scale_color_brewer(palette = "Set3") + # Setting colors for sets
+  #scale_fill_distiller(palette = "YlGnBu") +
+  labs(title = "Number of Programming Languages with Different Combinations of Features") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
