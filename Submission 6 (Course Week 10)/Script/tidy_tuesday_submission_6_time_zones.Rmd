@@ -1,0 +1,43 @@
+---
+title: "Tidy Tuesday Submission 6 - Time Zones"
+author: "Mac"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidytuesdayR)
+```
+
+
+# Load Data
+
+```{r}
+transitions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/transitions.csv')
+timezones <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/timezones.csv')
+timezone_countries <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/timezone_countries.csv')
+countries <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/countries.csv')
+```
+
+
+# Data Analysis
+
+```{r}
+View(transitions)
+View(timezones)
+View(timezone_countries)
+View(countries)
+```
+
+```{r}
+
+```
+
