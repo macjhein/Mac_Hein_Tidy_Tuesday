@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.path = "../Output/", dpi = 200)
 ```
 
 # Load Libraries
@@ -15,29 +15,133 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
 library(tidytuesdayR)
+library(lubridate)
+library(maps)
+library(mapdata)
+library(mapproj)
+library(ggmap)
+library(ggsn)
+library(patchwork)
+library(ggrepel)
+library(gganimate)
+library(magick)
+library(ggvis)
 ```
-
 
 # Load Data
 
 ```{r}
 transitions <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/transitions.csv')
+
 timezones <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/timezones.csv')
+
 timezone_countries <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/timezone_countries.csv')
+
 countries <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/countries.csv')
+
+world <- map_data("world")
+
+states <- map_data("state")
+
+usa <- map_data("usa")
+
+world2 <- map_data("world2")
 ```
 
-
 # Data Analysis
+
+Ideas for plots to make:
+
+- time zones
+- daylight savings time
+- offset from UTC
 
 ```{r}
 View(transitions)
 View(timezones)
 View(timezone_countries)
 View(countries)
+
+timezone_country_codes <- full_join(timezone_countries, countries)
+
+View(timezone_country_codes)
+
+timezone_transitions <- full_join(timezones, transitions)
+
+View(timezone_transitions)
+
+full_timezone_data <- full_join(timezone_country_codes, timezone_transitions)
+
+View(full_timezone_data)
+
+full_timezone_data_mutated <- full_timezone_data %>%
+  mutate(begin = as_datetime(begin)) %>%
+  mutate(end = as_datetime(end))
+
+View(full_timezone_data_mutated)
+
+full_timezone_data_world_2023 <- full_timezone_data_mutated %>%
+  mutate(begin = round_date(begin, "day")) %>%
+  mutate(end = round_date(end, "day")) %>%
+  filter(year(begin) == "2023")
+
+View(full_timezone_data_world_2023)
+
+full_timezone_data_usa <- full_timezone_data_mutated %>%
+  filter(place_name == "United States") %>%
+  filter(longitude <= 0) %>%
+  filter(longitude >= -130)
+
+View(full_timezone_data_usa)
+
+full_timezone_data_usa_2023 <- full_timezone_data_usa %>%
+  mutate(begin = round_date(begin, "day")) %>%
+  mutate(end = round_date(end, "day")) %>%
+  filter(year(begin) == "2023")
+
+View(full_timezone_data_usa_2023)
+
+full_timezone_data_world_2023_dst_on <- full_timezone_data_world_2023 %>%
+  filter(dst == "TRUE")
+
+View(full_timezone_data_world_2023_dst_on)
+
+full_timezone_data_world_2023_dst_off <- full_timezone_data_world_2023 %>%
+  filter(dst == "FALSE")
+
+View(full_timezone_data_world_2023_dst_off)
+
+full_timezone_data_usa_2023_dst_on <- full_timezone_data_usa_2023 %>%
+  filter(dst == "TRUE")
+
+View(full_timezone_data_usa_2023_dst_on)
+
+full_timezone_data_usa_2023_dst_off <- full_timezone_data_usa_2023 %>%
+  filter(dst == "FALSE")
+
+View(full_timezone_data_usa_2023_dst_off)
 ```
+Offsets from UTC at start of daylight savings time 2023 for the whole world and the continental US
 
-```{r}
+```{r UTC_Offsets_DST_2023}
+time_zones_offsets_world_2023 <- ggplot() +
+  geom_polygon(data = world, aes(x = long, y = lat, group = group), color = "black", fill = "white") +
+  coord_map(projection = "mercator", xlim = c(-180, 180)) +
+  theme(panel.background = element_rect(fill = "grey")) +
+  geom_point(data = full_timezone_data_world_2023_dst_on, aes(x = longitude, y = latitude, color = offset), alpha = 0.5, size = 1, stroke = 1) +
+  scale_color_viridis_c() +
+  ggtitle('World')
 
+time_zones_offsets_usa_2023 <- ggplot() +
+  geom_polygon(data = states, aes(x = long, y = lat, group = group), color = "black", fill = "white") +
+  coord_map(projection = "mercator", xlim = c(-125, -67), ylim = c(25, 50)) + # Cropping map to fit coordinates of continental US
+  theme(panel.background = element_rect(fill = "grey")) +
+  geom_point(data = full_timezone_data_usa_2023_dst_on, aes(x = longitude, y = latitude, color = offset), alpha = 0.5, size = 1, stroke = 1) +
+  scale_color_viridis_c() +
+  geom_label_repel(data = full_timezone_data_usa_2023_dst_on, aes(x = longitude, y = latitude, label = zone), size = 1, alpha = 0.75, max.overlaps = 60) +
+  ggtitle('Continental USA')
+
+time_zones_offsets_world_2023 / time_zones_offsets_usa_2023 + plot_annotation(
+  title = 'Offsets from UTC at start of DST 2023'
+)
 ```
-
