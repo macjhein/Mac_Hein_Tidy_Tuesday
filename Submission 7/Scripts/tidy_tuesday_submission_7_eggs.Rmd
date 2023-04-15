@@ -1,0 +1,51 @@
+---
+title: "Tidy Tuesday Submission 7"
+author: "Mac"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidytuesdayR)
+library(lubridate)
+library(gganimate)
+library(patchwork)
+```
+
+# Load Data
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load(2023, week = 15)
+
+eggproduction <- tuesdata$`egg-production`
+cagefreepercentages <- tuesdata$`cage-free-percentages`
+```
+
+# Data Analysis
+
+Animated plot of egg production per hen per month by production process and production type
+
+```{r}
+egg_plot <- ggplot() +
+  geom_line(data = eggproduction, aes(x = observed_month, y = n_eggs/n_hens, color = prod_type)) + # divided n_eggs by n_hens to get eggs per hen
+  facet_wrap(~prod_process, nrow = 3) +
+  transition_reveal(observed_month) + # Used transition_reveal() to display data in a line graph over each frame
+  ggtitle("Egg Production by Process") +
+  labs(x = "Observed Month", y = "Number of eggs produced per hen", fill = "Production Type")
+
+egg_plot
+```
+
+```{r}
+animate(egg_plot, height = 6, width = 7, units = "in", res = 200)
+anim_save(here("Submission 7", "Output", "egg_plot.gif"))
+```
+
