@@ -1,0 +1,116 @@
+---
+title: "Tidy Tuesday Submission 8 - Founder Crops"
+author: "Mac"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load Libraries
+
+```{r}
+library(tidyverse)
+library(here)
+library(tidytuesdayR)
+library(lubridate)
+library(gganimate)
+library(patchwork)
+library(maps)
+library(mapdata)
+library(mapproj)
+library(ggmap)
+library(ggsn)
+library(ggrepel)
+library(magick)
+library(ggvis)
+```
+
+# Load Data
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load(2023, week = 16)
+
+founder_crops <- tuesdata$founder_crops
+
+world <- map_data("world")
+```
+
+# Data Analysis
+
+```{r}
+View(founder_crops)
+```
+
+```{r}
+crops_by_site <- founder_crops %>%
+  group_by(site_name, latitude, longitude, phase, phase_description, phase_code, age_start, age_end, category) %>%
+  summarize(count = n()) #%>%
+  #write_csv(here("Submission 8","Data","crops_by_site.csv"))
+
+View(crops_by_site)
+```
+
+```{r}
+sites <- unique(crops_by_site$site_name)
+
+sites
+
+site_coordinates <- unique(crops_by_site[c("site_name", "latitude", "longitude")])
+
+View(site_coordinates)
+```
+
+```{r}
+# phase_times <- unique(crops_by_site[c("phase", "age_start", "age_end")])
+
+phase_times <- unique(crops_by_site[c("phase", "phase_description", "phase_code", "age_start", "age_end")])
+
+View(phase_times)
+```
+
+```{r}
+phase_times_filtered <- filter(phase_times, phase == "Abu Hureyra 1 (epipalaeolithic) phase 1")
+
+View(phase_times_filtered)
+```
+
+```{r}
+crops_by_site_filtered <- filter(crops_by_site, site_name == "Abu Hureyra")
+
+ggplot() +
+  geom_col(data = crops_by_site_filtered,
+             aes(x = category, y = count)) +
+  facet_wrap(~age_start)
+```
+
+```{r}
+map_coor <- data.frame(lon = 40, lat = 35)
+
+base_map <- get_map(map_coor, zoom = 5, maptype = "watercolor")
+
+founder_crops_filtered <- filter(founder_crops, site_name == "Aşıklı Höyük")
+
+View(founder_crops_filtered)
+
+base_map <- ggmap(base_map) +
+  geom_point(data = founder_crops,
+             aes(x = longitude, y = latitude, color = site_name),
+             alpha = 0.25,
+             size = 1,
+             stroke = 1) +
+  xlim(30, 48) +
+  ylim(30, 40) +
+  scale_color_viridis_d(option = "viridis") +
+  #facet_wrap(~phase) +
+  #facet_wrap(~category) +
+  #facet_wrap(~founder_crop) +
+  #facet_wrap(~site_name) +
+  theme(legend.position="none")
+
+# Maybe try using the interactive library to shift between phases using a slider
+
+base_map
+```
