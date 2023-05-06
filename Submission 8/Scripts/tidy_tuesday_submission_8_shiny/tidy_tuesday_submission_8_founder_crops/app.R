@@ -21,7 +21,7 @@ site_coordinates <- unique(founder_crops[c("site_name", "latitude", "longitude")
 
 phase_times <- unique(founder_crops[c("phase", "phase_description", "phase_code", "age_start", "age_end")])
 
-# Making a base map
+# Make a base map
 
 base_map <- get_map(location = c(lon = 40, lat = 35), zoom = 5, maptype = "terrain")
 
@@ -32,23 +32,33 @@ ui <- fluidPage(
   # Application title
   
   titlePanel("Neolithic Founder Crops"),
-  
-  mainPanel(selectInput(inputId = "site",
-                        label = "Choose Site:",
-                        choices = site_coordinates$site_name),
-            uiOutput("selectPhase"),
-            plotOutput("siteMap"),
-            h4(textOutput("phase_name")),
-            h4(textOutput("phase_description")),
-            h4(textOutput("timespan")),
-            plotOutput("siteCrops"),
-            dataTableOutput("cropTable")
-            )
+  sidebarLayout(
+    
+    sidebarPanel(selectInput(inputId = "site",
+                             label = "Choose Site:",
+                             choices = site_coordinates$site_name),
+                 uiOutput("selectPhase")),
+    
+    mainPanel(h4(textOutput("selectedCoor")),
+              plotOutput("siteMap"),
+              h4(textOutput("phase_name")),
+              h4(textOutput("phase_description")),
+              h4(textOutput("timespan")),
+              plotOutput("siteCrops"),
+              dataTableOutput("cropTable")
+              )
+    )
   )
 
 server <- function(input, output){
   
   selected_site <- reactive({filter(founder_crops, site_name == input$site)})
+  
+  filtered_coordinates <- reactive({unique(selected_site()[c("latitude", "longitude")])})
+  
+  selected_coordinates <- reactive({paste("Site coordinates:",
+                                          filtered_coordinates()$longitude, "longitude,",
+                                          filtered_coordinates()$latitude, "latitude")})
   
   site_phases <- reactive({unique(selected_site()$phase_code)})
   
@@ -69,6 +79,8 @@ server <- function(input, output){
   category_counts <- reactive({selected_phase() %>%
       group_by(site_name, latitude, longitude, phase, phase_description, phase_code, age_start, age_end, category) %>%
       summarize(count = n())})
+  
+  output$selectedCoor <- renderText({selected_coordinates()})
   
   output$siteMap <- renderPlot({
     
